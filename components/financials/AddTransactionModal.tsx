@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { transactionSchema, type TransactionFormData } from "@/lib/schemas";
 import { createClient } from "@/lib/supabase/client";
-import { useForm as useRHF, Controller } from "react-hook-form";
 
 interface AddTransactionModalProps {
   open: boolean;
@@ -26,7 +25,7 @@ export function AddTransactionModal({ open, onClose, userId, onSuccess }: AddTra
   const supabase = createClient();
 
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<TransactionFormData>({
-    resolver: zodResolver(transactionSchema),
+    resolver: zodResolver(transactionSchema) as Resolver<TransactionFormData>,
     defaultValues: { type: "expense", date: new Date().toISOString().split("T")[0] },
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -24,7 +24,7 @@ export function LogMealModal({ open, onClose, userId, onSuccess }: LogMealModalP
   const supabase = createClient();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<DietLogFormData>({
-    resolver: zodResolver(dietLogSchema),
+    resolver: zodResolver(dietLogSchema) as Resolver<DietLogFormData>,
     defaultValues: { logged_at: new Date().toISOString().split("T")[0] },
   });
 

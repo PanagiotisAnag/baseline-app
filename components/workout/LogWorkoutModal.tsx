@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -25,7 +25,7 @@ export function LogWorkoutModal({ open, onClose, userId, onSuccess }: LogWorkout
   const supabase = createClient();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<WorkoutFormData>({
-    resolver: zodResolver(workoutSchema),
+    resolver: zodResolver(workoutSchema) as Resolver<WorkoutFormData>,
     defaultValues: { logged_at: new Date().toISOString().split("T")[0] },
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -25,7 +25,7 @@ export function LogSessionModal({ open, onClose, userId, onSuccess }: LogSession
   const supabase = createClient();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<WorkSessionFormData>({
-    resolver: zodResolver(workSessionSchema),
+    resolver: zodResolver(workSessionSchema) as Resolver<WorkSessionFormData>,
     defaultValues: { logged_at: new Date().toISOString().split("T")[0] },
   });
 
