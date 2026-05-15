@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Plus, ArrowUpCircle, ArrowDownCircle, Trash2, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { createClient } from "@/lib/supabase/client";
@@ -42,31 +41,31 @@ export function FinancialsClient({ userId, initialTransactions }: FinancialsClie
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">All time overview</p>
-        <Button size="sm" onClick={() => setModalOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" /> Add Transaction
+        <p className="text-xs text-muted-foreground">All time overview</p>
+        <Button size="sm" className="h-8 text-xs cursor-pointer" onClick={() => setModalOpen(true)}>
+          <Plus className="h-3.5 w-3.5" /> Add Transaction
         </Button>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-1">
             <p className="text-xs text-muted-foreground">Income</p>
-            <p className="text-xl font-bold text-emerald-500">+€{totalIncome.toFixed(2)}</p>
+            <p className="text-xl font-bold tabular-nums text-emerald-500">+€{totalIncome.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-1">
             <p className="text-xs text-muted-foreground">Expenses</p>
-            <p className="text-xl font-bold text-red-500">-€{totalExpenses.toFixed(2)}</p>
+            <p className="text-xl font-bold tabular-nums text-red-400">-€{totalExpenses.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-1">
             <p className="text-xs text-muted-foreground">Balance</p>
-            <p className={cn("text-xl font-bold", balance >= 0 ? "text-emerald-500" : "text-red-500")}>
+            <p className={cn("text-xl font-bold tabular-nums", balance >= 0 ? "text-emerald-500" : "text-red-400")}>
               €{balance.toFixed(2)}
             </p>
           </CardContent>
@@ -74,46 +73,47 @@ export function FinancialsClient({ userId, initialTransactions }: FinancialsClie
       </div>
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="income">Income</TabsTrigger>
-          <TabsTrigger value="expense">Expenses</TabsTrigger>
+        <TabsList className="h-8">
+          <TabsTrigger value="all" className="text-xs h-6 cursor-pointer">All</TabsTrigger>
+          <TabsTrigger value="income" className="text-xs h-6 cursor-pointer">Income</TabsTrigger>
+          <TabsTrigger value="expense" className="text-xs h-6 cursor-pointer">Expenses</TabsTrigger>
         </TabsList>
       </Tabs>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <TrendingUp className="h-12 w-12 text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground">No transactions yet.</p>
-          <Button className="mt-4" onClick={() => setModalOpen(true)}>Add your first transaction</Button>
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <TrendingUp className="h-6 w-6 text-muted-foreground/50" />
+          </div>
+          <p className="text-sm font-medium">No transactions yet</p>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">Start tracking your income and expenses</p>
+          <Button size="sm" className="h-8 text-xs cursor-pointer" onClick={() => setModalOpen(true)}>Add your first transaction</Button>
         </div>
       ) : (
         <div className="space-y-2">
           {filtered.map((t) => (
-            <Card key={t.id} className="group">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className={cn("rounded-lg p-2 shrink-0", t.type === "income" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
-                  {t.type === "income" ? <ArrowUpCircle className="h-4 w-4" /> : <ArrowDownCircle className="h-4 w-4" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{t.title}</p>
-                  <p className="text-xs text-muted-foreground">{t.date}{t.category ? ` · ${t.category}` : ""}</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className={cn("font-semibold tabular-nums", t.type === "income" ? "text-emerald-500" : "text-red-500")}>
-                    {t.type === "income" ? "+" : "-"}€{t.amount.toFixed(2)}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                    onClick={() => handleDelete(t.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={t.id} className="group flex items-center gap-3 rounded-lg border bg-card px-4 py-3 transition-all duration-150 hover:bg-card/80">
+              <div className={cn("rounded-md p-1.5 shrink-0", t.type === "income" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400")}>
+                {t.type === "income" ? <ArrowUpCircle className="h-3.5 w-3.5" /> : <ArrowDownCircle className="h-3.5 w-3.5" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{t.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t.date}{t.category ? ` · ${t.category}` : ""}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className={cn("text-sm font-semibold tabular-nums", t.type === "income" ? "text-emerald-500" : "text-red-400")}>
+                  {t.type === "income" ? "+" : "-"}€{t.amount.toFixed(2)}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive cursor-pointer"
+                  onClick={() => handleDelete(t.id)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}

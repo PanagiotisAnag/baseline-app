@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trackable — Personal Stats Tracker",
+  title: "Baseline — Personal Stats Tracker",
   description: "Track your workouts, diet, finances, work sessions, and more.",
 };
 

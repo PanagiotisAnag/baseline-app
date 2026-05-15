@@ -11,7 +11,6 @@ import { Zap, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
 
 const registerSchema = z.object({
@@ -47,70 +46,80 @@ export default function RegisterPage() {
       return;
     }
 
-    toast.success("Account created! Please check your email to confirm.");
-    router.push("/login");
+    toast.success("Account created! Signing you in...");
+    router.push("/home");
+    router.refresh();
   }
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader className="text-center">
-        <div className="flex justify-center mb-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-            <Zap className="h-5 w-5 text-primary-foreground" />
+    <div className="space-y-6">
+      {/* Brand */}
+      <div className="text-center space-y-3">
+        <div className="flex justify-center">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
+            <Zap className="h-4 w-4 text-primary-foreground" />
           </div>
         </div>
-        <CardTitle className="text-xl">Create account</CardTitle>
-        <CardDescription>Start tracking your personal stats</CardDescription>
-      </CardHeader>
-      <CardContent>
+        <div>
+          <h1 className="text-lg font-semibold tracking-tight">Create your account</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Start tracking your personal stats</p>
+        </div>
+      </div>
+
+      {/* Card */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="full_name">Full name</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="full_name" className="text-xs font-medium">Full name</Label>
             <Input
               id="full_name"
               type="text"
               placeholder="John Doe"
+              className="h-9 text-sm"
               {...register("full_name")}
             />
             {errors.full_name && (
               <p className="text-xs text-destructive">{errors.full_name.message}</p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-xs font-medium">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
+              className="h-9 text-sm"
               {...register("email")}
             />
             {errors.email && (
               <p className="text-xs text-destructive">{errors.email.message}</p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-xs font-medium">Password</Label>
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
+              className="h-9 text-sm"
               {...register("password")}
             />
             {errors.password && (
               <p className="text-xs text-destructive">{errors.password.message}</p>
             )}
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full h-9 text-sm cursor-pointer mt-1" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create account"}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">
-            Sign in
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+      </div>
+
+      <p className="text-center text-xs text-muted-foreground">
+        Already have an account?{" "}
+        <Link href="/login" className="text-foreground font-medium hover:text-primary transition-colors">
+          Sign in
+        </Link>
+      </p>
+    </div>
   );
 }

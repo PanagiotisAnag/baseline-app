@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/home", label: "Dashboard", icon: LayoutDashboard },
@@ -50,19 +51,19 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Zap className="h-4 w-4 text-primary-foreground" />
+      <SidebarHeader className="px-4 py-5 border-b border-sidebar-border">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary shrink-0">
+            <Zap className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-bold tracking-tight">Trackable</span>
+          <span className="text-sm font-semibold tracking-tight">Baseline</span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2 py-3">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -71,9 +72,18 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       isActive={isActive}
                       render={<Link href={item.href} />}
+                      className={cn(
+                        "h-8 rounded-md text-xs font-medium transition-all duration-150",
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+                      )}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-primary" : "")} />
                       <span>{item.label}</span>
+                      {isActive && (
+                        <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -83,11 +93,14 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="px-2 py-3 border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleSignOut} className="text-muted-foreground hover:text-destructive">
-              <LogOut className="h-4 w-4" />
+            <SidebarMenuButton
+              onClick={handleSignOut}
+              className="h-8 rounded-md text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-150 cursor-pointer"
+            >
+              <LogOut className="h-3.5 w-3.5 shrink-0" />
               <span>Sign out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

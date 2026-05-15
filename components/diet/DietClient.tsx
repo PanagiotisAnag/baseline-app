@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, UtensilsCrossed, Trash2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { LogMealModal } from "./LogMealModal";
@@ -48,44 +48,44 @@ export function DietClient({ userId, initialLogs, goal: initialGoal }: DietClien
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">Today&apos;s intake</p>
+        <p className="text-xs text-muted-foreground">Today&apos;s intake</p>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setGoalModalOpen(true)}>
-            <Target className="h-4 w-4 mr-1" /> Set Goal
+          <Button variant="outline" size="sm" className="h-8 text-xs cursor-pointer" onClick={() => setGoalModalOpen(true)}>
+            <Target className="h-3.5 w-3.5" /> Set Goal
           </Button>
-          <Button size="sm" onClick={() => setMealModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" /> Log Meal
+          <Button size="sm" className="h-8 text-xs cursor-pointer" onClick={() => setMealModalOpen(true)}>
+            <Plus className="h-3.5 w-3.5" /> Log Meal
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-1">
             <p className="text-xs text-muted-foreground">Calories</p>
-            <p className="text-2xl font-bold">{totalCalories}</p>
+            <p className="text-2xl font-bold tabular-nums">{totalCalories}</p>
             {goal && <p className="text-xs text-muted-foreground">/ {goal.daily_calories} kcal</p>}
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-1">
             <p className="text-xs text-muted-foreground">Protein</p>
-            <p className="text-2xl font-bold">{totalProtein.toFixed(0)}g</p>
+            <p className="text-2xl font-bold tabular-nums">{totalProtein.toFixed(0)}g</p>
             {goal?.protein_g && <p className="text-xs text-muted-foreground">/ {goal.protein_g}g target</p>}
           </CardContent>
         </Card>
         <Card className="col-span-2 sm:col-span-1">
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-2">Daily goal progress</p>
+            <p className="text-xs text-muted-foreground mb-3">Daily goal</p>
             {goal ? (
               <>
-                <Progress value={calorieProgress} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-1">{calorieProgress.toFixed(0)}%</p>
+                <Progress value={calorieProgress} className="h-1.5" />
+                <p className="text-xs text-muted-foreground mt-1.5">{calorieProgress.toFixed(0)}% of daily target</p>
               </>
             ) : (
-              <p className="text-xs text-muted-foreground">No goal set</p>
+              <p className="text-xs text-muted-foreground">No goal set yet</p>
             )}
           </CardContent>
         </Card>
@@ -93,35 +93,38 @@ export function DietClient({ userId, initialLogs, goal: initialGoal }: DietClien
 
       {logs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <UtensilsCrossed className="h-12 w-12 text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground">No meals logged today.</p>
-          <Button className="mt-4" onClick={() => setMealModalOpen(true)}>Log your first meal</Button>
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <UtensilsCrossed className="h-6 w-6 text-muted-foreground/50" />
+          </div>
+          <p className="text-sm font-medium">No meals today</p>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">Log what you eat to track your nutrition</p>
+          <Button size="sm" className="h-8 text-xs cursor-pointer" onClick={() => setMealModalOpen(true)}>Log your first meal</Button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {logs.map((log) => (
-            <Card key={log.id} className="group">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="rounded-lg p-2 bg-emerald-500/10 text-emerald-500 shrink-0">
-                  <UtensilsCrossed className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{log.meal_name}</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Badge variant="secondary">{log.calories} kcal</Badge>
-                  {log.protein_g && <Badge variant="secondary" className="text-blue-500">{log.protein_g}g protein</Badge>}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                    onClick={() => handleDelete(log.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={log.id} className="group flex items-center gap-3 rounded-lg border bg-card px-4 py-3 transition-all duration-150 hover:bg-card/80">
+              <div className="rounded-md p-1.5 bg-emerald-500/10 text-emerald-400 shrink-0">
+                <UtensilsCrossed className="h-3.5 w-3.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{log.meal_name}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge variant="secondary" className="text-xs h-5 px-2">{log.calories} kcal</Badge>
+                {log.protein_g && (
+                  <Badge variant="secondary" className="text-xs h-5 px-2 text-blue-400">{log.protein_g}g protein</Badge>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive cursor-pointer"
+                  onClick={() => handleDelete(log.id)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}

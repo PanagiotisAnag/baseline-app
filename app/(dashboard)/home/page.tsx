@@ -2,147 +2,163 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Dumbbell, UtensilsCrossed, Wallet, BriefcaseBusiness, CheckSquare, TrendingUp } from "lucide-react";
 import { StatsCard } from "@/components/home/StatsCard";
+import { HomeCharts } from "@/components/home/HomeCharts";
+import { HomeProfile } from "@/components/home/HomeProfile";
+import { AIInsights } from "@/components/home/AIInsights";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 async function getDashboardData(userId: string) {
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
-  const [workouts, dietLogs, transactions, workSessions, todos] = await Promise.all([
-    supabase.from("workout_logs").select("id, duration_minutes, logged_at").eq("user_id", userId).gte("logged_at", weekAgo),
-    supabase.from("diet_logs").select("calories, logged_at").eq("user_id", userId).gte("logged_at", today),
-    supabase.from("transactions").select("amount, type").eq("user_id", userId).gte("date", weekAgo),
+  const [workouts, dietLogs, transactions, workSessions, todos, dietGoal] = await Promise.all([
+    supabase.from("workout_logs").select("duration_minutes, calories_burned, logged_at").eq("user_id", userId).gte("logged_at", weekAgo),
+    supabase.from("diet_logs").select("calories, logged_at").eq("user_id", userId).gte("logged_at", weekAgo),
+    supabase.from("transactions").select("amount, type, date").eq("user_id", userId).gte("date", weekAgo),
     supabase.from("work_sessions").select("duration_minutes, logged_at").eq("user_id", userId).gte("logged_at", weekAgo),
     supabase.from("todos").select("id, completed").eq("user_id", userId),
+    supabase.from("diet_goals").select("daily_calories").eq("user_id", userId).single(),
   ]);
 
   const weeklyWorkouts = workouts.data?.length ?? 0;
-  const todayCalories = dietLogs.data?.reduce((sum, l) => sum + l.calories, 0) ?? 0;
+  const todayCalories = dietLogs.data?.filter(l => l.logged_at === today).reduce((sum, l) => sum + l.calories, 0) ?? 0;
   const weeklyIncome = transactions.data?.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0) ?? 0;
   const weeklyExpenses = transactions.data?.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0) ?? 0;
   const weeklyWorkHours = Math.round((workSessions.data?.reduce((sum, s) => sum + s.duration_minutes, 0) ?? 0) / 60 * 10) / 10;
   const pendingTodos = todos.data?.filter(t => !t.completed).length ?? 0;
+  const dailyCalorieGoal = dietGoal.data?.daily_calories ?? 2000;
 
-  return { weeklyWorkouts, todayCalories, weeklyIncome, weeklyExpenses, weeklyWorkHours, pendingTodos };
+  // Build last 7 days chart data
+  const last7 = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000);
+    return d.toISOString().split("T")[0];
+  });
+
+  const workoutData = last7.map(date => ({
+    day: DAYS[new Date(date).getDay()],
+    sessions: workouts.data?.filter(w => w.logged_at === date).length ?? 0,
+    minutes: workouts.data?.filter(w => w.logged_at === date).reduce((s, w) => s + w.duration_minutes, 0) ?? 0,
+  }));
+
+  const calorieData = last7.map(date => ({
+    day: DAYS[new Date(date).getDay()],
+    calories: dietLogs.data?.filter(l => l.logged_at === date).reduce((s, l) => s + l.calories, 0) ?? 0,
+    goal: dailyCalorieGoal,
+  }));
+
+  const financeData = last7.map(date => ({
+    day: DAYS[new Date(date).getDay()],
+    income: transactions.data?.filter(t => t.type === "income" && t.date === date).reduce((s, t) => s + t.amount, 0) ?? 0,
+    expenses: transactions.data?.filter(t => t.type === "expense" && t.date === date).reduce((s, t) => s + t.amount, 0) ?? 0,
+  }));
+
+  return { weeklyWorkouts, todayCalories, weeklyIncome, weeklyExpenses, weeklyWorkHours, pendingTodos, workoutData, calorieData, financeData };
 }
 
 export default async function HomePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) redirect("/login");
 
   const stats = await getDashboardData(user.id);
-  const name = user.user_metadata?.full_name?.split(" ")[0] ?? "there";
-
+  const name = user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "there";
+  const firstName = name.split(" ")[0];
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
-        <h2 className="text-2xl font-bold">{greeting}, {name} 👋</h2>
-        <p className="text-muted-foreground mt-1">Here&apos;s your weekly snapshot</p>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">{greeting}, {firstName}</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">Your weekly snapshot</p>
+        </div>
+        <HomeProfile
+          name={name}
+          email={user.email ?? ""}
+          avatarUrl={user.user_metadata?.avatar_url}
+          joinedAt={user.created_at}
+        />
       </div>
 
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatsCard
-          title="Workouts this week"
-          value={stats.weeklyWorkouts}
-          subtitle="sessions"
-          icon={Dumbbell}
-          color="orange"
-        />
-        <StatsCard
-          title="Calories today"
-          value={stats.todayCalories}
-          subtitle="kcal"
-          icon={UtensilsCrossed}
-          color="green"
-        />
-        <StatsCard
-          title="Weekly income"
-          value={`€${stats.weeklyIncome.toFixed(0)}`}
-          icon={Wallet}
-          color="blue"
-        />
-        <StatsCard
-          title="Weekly expenses"
-          value={`€${stats.weeklyExpenses.toFixed(0)}`}
-          icon={TrendingUp}
-          color="red"
-        />
-        <StatsCard
-          title="Work hours"
-          value={stats.weeklyWorkHours}
-          subtitle="this week"
-          icon={BriefcaseBusiness}
-          color="purple"
-        />
-        <StatsCard
-          title="Pending todos"
-          value={stats.pendingTodos}
-          subtitle="tasks"
-          icon={CheckSquare}
-          color="orange"
-        />
+        <StatsCard title="Workouts" value={stats.weeklyWorkouts} subtitle="this week" iconName="dumbbell" color="orange" />
+        <StatsCard title="Calories" value={stats.todayCalories} subtitle="today" iconName="utensils" color="green" />
+        <StatsCard title="Income" value={`€${stats.weeklyIncome.toFixed(0)}`} subtitle="this week" iconName="wallet" color="blue" />
+        <StatsCard title="Expenses" value={`€${stats.weeklyExpenses.toFixed(0)}`} subtitle="this week" iconName="trending" color="red" />
+        <StatsCard title="Work" value={stats.weeklyWorkHours} subtitle="hours" iconName="briefcase" color="purple" />
+        <StatsCard title="Todos" value={stats.pendingTodos} subtitle="pending" iconName="check" color="orange" />
       </div>
 
+      {/* AI Insights */}
+      <AIInsights />
+
+      {/* Charts */}
+      <section className="space-y-3">
+        <p className="section-label px-0.5">Activity Trends</p>
+        <HomeCharts workoutData={stats.workoutData} calorieData={stats.calorieData} financeData={stats.financeData} />
+      </section>
+
+      {/* Quick Actions + Balance */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <a href="/workout">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-orange-500/20 hover:text-orange-500 transition-colors py-1.5 px-3">
-                <Dumbbell className="h-3 w-3 mr-1" /> Log Workout
+              <Badge variant="secondary" className="cursor-pointer hover:bg-orange-500/15 hover:text-orange-400 transition-all duration-150 py-1.5 px-3 gap-1.5">
+                <Dumbbell className="h-3 w-3" /> Log Workout
               </Badge>
             </a>
             <a href="/diet">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-emerald-500/20 hover:text-emerald-500 transition-colors py-1.5 px-3">
-                <UtensilsCrossed className="h-3 w-3 mr-1" /> Log Meal
+              <Badge variant="secondary" className="cursor-pointer hover:bg-emerald-500/15 hover:text-emerald-400 transition-all duration-150 py-1.5 px-3 gap-1.5">
+                <UtensilsCrossed className="h-3 w-3" /> Log Meal
               </Badge>
             </a>
             <a href="/financials">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-blue-500/20 hover:text-blue-500 transition-colors py-1.5 px-3">
-                <Wallet className="h-3 w-3 mr-1" /> Add Transaction
+              <Badge variant="secondary" className="cursor-pointer hover:bg-blue-500/15 hover:text-blue-400 transition-all duration-150 py-1.5 px-3 gap-1.5">
+                <Wallet className="h-3 w-3" /> Add Transaction
               </Badge>
             </a>
             <a href="/work">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-purple-500/20 hover:text-purple-500 transition-colors py-1.5 px-3">
-                <BriefcaseBusiness className="h-3 w-3 mr-1" /> Start Work Session
+              <Badge variant="secondary" className="cursor-pointer hover:bg-purple-500/15 hover:text-purple-400 transition-all duration-150 py-1.5 px-3 gap-1.5">
+                <BriefcaseBusiness className="h-3 w-3" /> Work Session
               </Badge>
             </a>
             <a href="/todos">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-orange-500/20 hover:text-orange-500 transition-colors py-1.5 px-3">
-                <CheckSquare className="h-3 w-3 mr-1" /> Add Todo
+              <Badge variant="secondary" className="cursor-pointer hover:bg-orange-500/15 hover:text-orange-400 transition-all duration-150 py-1.5 px-3 gap-1.5">
+                <CheckSquare className="h-3 w-3" /> Add Todo
               </Badge>
             </a>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Weekly Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end gap-2">
-              <span className={`text-3xl font-bold ${stats.weeklyIncome - stats.weeklyExpenses >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-3xl font-bold tabular-nums ${stats.weeklyIncome - stats.weeklyExpenses >= 0 ? "text-emerald-500" : "text-red-400"}`}>
                 €{(stats.weeklyIncome - stats.weeklyExpenses).toFixed(2)}
               </span>
-              <span className="text-muted-foreground text-sm mb-1">net this week</span>
+              <span className="text-muted-foreground text-xs">net this week</span>
             </div>
-            <div className="mt-3 flex gap-4 text-sm">
-              <div>
-                <span className="text-emerald-500 font-medium">+€{stats.weeklyIncome.toFixed(2)}</span>
-                <span className="text-muted-foreground ml-1">income</span>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-md bg-emerald-500/8 px-3 py-2">
+                <p className="text-xs text-muted-foreground">Income</p>
+                <p className="text-sm font-semibold text-emerald-500 tabular-nums mt-0.5">+€{stats.weeklyIncome.toFixed(2)}</p>
               </div>
-              <div>
-                <span className="text-red-500 font-medium">-€{stats.weeklyExpenses.toFixed(2)}</span>
-                <span className="text-muted-foreground ml-1">expenses</span>
+              <div className="rounded-md bg-red-500/8 px-3 py-2">
+                <p className="text-xs text-muted-foreground">Expenses</p>
+                <p className="text-sm font-semibold text-red-400 tabular-nums mt-0.5">-€{stats.weeklyExpenses.toFixed(2)}</p>
               </div>
             </div>
           </CardContent>

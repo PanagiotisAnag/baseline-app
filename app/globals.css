@@ -41,62 +41,64 @@
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.13 0.02 260);
+  --radius: 0.625rem;
+  /* Light mode — clean slate white */
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.12 0.01 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0.02 260);
+  --card-foreground: oklch(0.12 0.01 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0.02 260);
-  --primary: oklch(0.55 0.22 260);
+  --popover-foreground: oklch(0.12 0.01 250);
+  --primary: oklch(0.55 0.18 145);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.01 260);
-  --secondary-foreground: oklch(0.2 0.02 260);
-  --muted: oklch(0.96 0.01 260);
-  --muted-foreground: oklch(0.55 0.02 260);
-  --accent: oklch(0.96 0.01 260);
-  --accent-foreground: oklch(0.2 0.02 260);
+  --secondary: oklch(0.95 0.005 250);
+  --secondary-foreground: oklch(0.2 0.01 250);
+  --muted: oklch(0.95 0.005 250);
+  --muted-foreground: oklch(0.52 0.01 250);
+  --accent: oklch(0.95 0.005 250);
+  --accent-foreground: oklch(0.2 0.01 250);
   --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.9 0.01 260);
-  --input: oklch(0.9 0.01 260);
-  --ring: oklch(0.55 0.22 260);
-  --sidebar: oklch(0.97 0.005 260);
-  --sidebar-foreground: oklch(0.13 0.02 260);
-  --sidebar-primary: oklch(0.55 0.22 260);
+  --border: oklch(0.88 0.005 250);
+  --input: oklch(0.88 0.005 250);
+  --ring: oklch(0.55 0.18 145);
+  --sidebar: oklch(0.975 0.003 250);
+  --sidebar-foreground: oklch(0.12 0.01 250);
+  --sidebar-primary: oklch(0.55 0.18 145);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.93 0.01 260);
-  --sidebar-accent-foreground: oklch(0.2 0.02 260);
-  --sidebar-border: oklch(0.88 0.01 260);
-  --sidebar-ring: oklch(0.55 0.22 260);
+  --sidebar-accent: oklch(0.92 0.008 250);
+  --sidebar-accent-foreground: oklch(0.2 0.01 250);
+  --sidebar-border: oklch(0.85 0.005 250);
+  --sidebar-ring: oklch(0.55 0.18 145);
 }
 
 .dark {
-  --background: oklch(0.1 0.02 260);
-  --foreground: oklch(0.95 0.01 260);
-  --card: oklch(0.14 0.02 260);
-  --card-foreground: oklch(0.95 0.01 260);
-  --popover: oklch(0.14 0.02 260);
-  --popover-foreground: oklch(0.95 0.01 260);
-  --primary: oklch(0.65 0.22 260);
-  --primary-foreground: oklch(0.1 0.02 260);
-  --secondary: oklch(0.2 0.02 260);
-  --secondary-foreground: oklch(0.95 0.01 260);
-  --muted: oklch(0.2 0.02 260);
-  --muted-foreground: oklch(0.65 0.02 260);
-  --accent: oklch(0.2 0.02 260);
-  --accent-foreground: oklch(0.95 0.01 260);
-  --destructive: oklch(0.65 0.22 25);
-  --border: oklch(0.22 0.02 260);
-  --input: oklch(0.22 0.02 260);
-  --ring: oklch(0.65 0.22 260);
-  --sidebar: oklch(0.12 0.02 260);
-  --sidebar-foreground: oklch(0.95 0.01 260);
-  --sidebar-primary: oklch(0.65 0.22 260);
-  --sidebar-primary-foreground: oklch(0.1 0.02 260);
-  --sidebar-accent: oklch(0.18 0.02 260);
-  --sidebar-accent-foreground: oklch(0.95 0.01 260);
-  --sidebar-border: oklch(0.22 0.02 260);
-  --sidebar-ring: oklch(0.65 0.22 260);
+  /* OLED dark — true deep blacks, green accent */
+  --background: oklch(0.06 0.005 250);
+  --foreground: oklch(0.94 0.005 250);
+  --card: oklch(0.1 0.008 250);
+  --card-foreground: oklch(0.94 0.005 250);
+  --popover: oklch(0.1 0.008 250);
+  --popover-foreground: oklch(0.94 0.005 250);
+  --primary: oklch(0.65 0.2 145);
+  --primary-foreground: oklch(0.06 0.005 250);
+  --secondary: oklch(0.15 0.008 250);
+  --secondary-foreground: oklch(0.94 0.005 250);
+  --muted: oklch(0.15 0.008 250);
+  --muted-foreground: oklch(0.58 0.008 250);
+  --accent: oklch(0.15 0.008 250);
+  --accent-foreground: oklch(0.94 0.005 250);
+  --destructive: oklch(0.62 0.22 25);
+  --border: oklch(0.18 0.008 250);
+  --input: oklch(0.15 0.008 250);
+  --ring: oklch(0.65 0.2 145);
+  --sidebar: oklch(0.08 0.007 250);
+  --sidebar-foreground: oklch(0.94 0.005 250);
+  --sidebar-primary: oklch(0.65 0.2 145);
+  --sidebar-primary-foreground: oklch(0.06 0.005 250);
+  --sidebar-accent: oklch(0.13 0.008 250);
+  --sidebar-accent-foreground: oklch(0.94 0.005 250);
+  --sidebar-border: oklch(0.16 0.007 250);
+  --sidebar-ring: oklch(0.65 0.2 145);
 }
 
 * {
@@ -107,13 +109,73 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Smooth transition on all interactive elements */
+button, a, [role="button"] {
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+
+/* Scrollbar — dark mode refined */
+.dark ::-webkit-scrollbar { width: 5px; height: 5px; }
+.dark ::-webkit-scrollbar-track { background: transparent; }
+.dark ::-webkit-scrollbar-thumb { background: oklch(0.22 0.008 250); border-radius: 99px; }
+.dark ::-webkit-scrollbar-thumb:hover { background: oklch(0.28 0.008 250); }
+
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.25s ease-out;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.25s ease-out;
+}
+
+@keyframes shimmer-slide {
+  to { transform: translate(calc(100cqw - 100%), 0); }
+}
+
+@keyframes spin-around {
+  0%            { transform: translateZ(0) rotate(0deg); }
+  15%, 35%      { transform: translateZ(0) rotate(90deg); }
+  65%, 85%      { transform: translateZ(0) rotate(270deg); }
+  100%          { transform: translateZ(0) rotate(360deg); }
+}
+
+.animate-shimmer-slide {
+  animation: shimmer-slide var(--speed) ease-in-out infinite alternate;
+}
+
+.animate-spin-around {
+  animation: spin-around calc(var(--speed) * 2) infinite linear;
+}
+
+/* Card hover in dark — subtle lift */
+.dark .card-hover {
+  transition: background-color 150ms ease, box-shadow 150ms ease;
+}
+.dark .card-hover:hover {
+  background-color: oklch(0.13 0.008 250);
+  box-shadow: 0 0 0 1px oklch(0.22 0.008 250);
+}
+
+/* Section label style */
+.section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
 }

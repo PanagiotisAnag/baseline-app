@@ -1,10 +1,10 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export async function POST(request: Request) {
+export async function POST() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -27,27 +27,20 @@ export async function POST(request: Request) {
     todos: { total: todos.data?.length ?? 0, completed: todos.data?.filter(t => t.completed).length ?? 0 },
   };
 
-  const message = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 500,
-    messages: [
-      {
-        role: "user",
-        content: `You are a personal stats coach. Analyze the user's past week data and give 3 short, actionable insights (1-2 sentences each). Be specific, positive, and motivating. Format as a JSON array of strings.
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-Data: ${JSON.stringify(summary)}`,
-      },
-    ],
-  });
+  const prompt = `You are a personal stats coach. Analyze the user's past week data and give 3 short, actionable insights (1-2 sentences each). Be specific, positive, and motivating. Reply ONLY with a valid JSON array of 3 strings, no extra text.
 
-  const content = message.content[0];
-  if (content.type !== "text") return NextResponse.json({ insights: [] });
+Data: ${JSON.stringify(summary)}`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
 
   try {
-    const jsonMatch = content.text.match(/\[[\s\S]*\]/);
-    const insights = jsonMatch ? JSON.parse(jsonMatch[0]) : [content.text];
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    const insights = jsonMatch ? JSON.parse(jsonMatch[0]) : [text];
     return NextResponse.json({ insights });
   } catch {
-    return NextResponse.json({ insights: [content.text] });
+    return NextResponse.json({ insights: [text] });
   }
 }
