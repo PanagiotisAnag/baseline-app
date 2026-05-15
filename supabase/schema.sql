@@ -82,6 +82,38 @@ create table if not exists activities (
   created_at timestamptz default now()
 );
 
+-- Goals (weekly targets per category)
+create table if not exists goals (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  category text check (category in ('workout', 'diet', 'work', 'finance')) not null,
+  label text not null,
+  target_value numeric(10,2) not null,
+  unit text not null,
+  period text check (period in ('daily', 'weekly')) default 'weekly',
+  created_at timestamptz default now(),
+  unique(user_id, category)
+);
+
+-- Habits
+create table if not exists habits (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  title text not null,
+  color text default '#22c55e',
+  archived boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Habit completions (one row per day per habit)
+create table if not exists habit_completions (
+  id uuid primary key default uuid_generate_v4(),
+  habit_id uuid references habits(id) on delete cascade not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  completed_on date not null default current_date,
+  unique(habit_id, completed_on)
+);
+
 -- Row Level Security
 alter table workout_logs enable row level security;
 alter table diet_logs enable row level security;
@@ -99,3 +131,11 @@ create policy "Users own transactions" on transactions for all using (auth.uid()
 create policy "Users own work_sessions" on work_sessions for all using (auth.uid() = user_id);
 create policy "Users own todos" on todos for all using (auth.uid() = user_id);
 create policy "Users own activities" on activities for all using (auth.uid() = user_id);
+
+alter table goals enable row level security;
+alter table habits enable row level security;
+alter table habit_completions enable row level security;
+
+create policy "Users own goals" on goals for all using (auth.uid() = user_id);
+create policy "Users own habits" on habits for all using (auth.uid() = user_id);
+create policy "Users own habit_completions" on habit_completions for all using (auth.uid() = user_id);

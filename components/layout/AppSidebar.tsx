@@ -10,6 +10,7 @@ import {
   BriefcaseBusiness,
   CheckSquare,
   Activity,
+  Repeat,
   LogOut,
   Zap,
 } from "lucide-react";
@@ -36,6 +37,7 @@ const navItems = [
   { href: "/work", label: "Work", icon: BriefcaseBusiness },
   { href: "/todos", label: "Todos", icon: CheckSquare },
   { href: "/activities", label: "Activities", icon: Activity },
+  { href: "/habits", label: "Habits", icon: Repeat },
 ];
 
 export function AppSidebar() {

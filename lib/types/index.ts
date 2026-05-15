@@ -78,3 +78,30 @@ export interface Activity {
   logged_at: string;
   created_at: string;
 }
+
+export interface Goal {
+  id: string;
+  user_id: string;
+  category: "workout" | "diet" | "work" | "finance";
+  label: string;
+  target_value: number;
+  unit: string;
+  period: "daily" | "weekly";
+  created_at: string;
+}
+
+export interface Habit {
+  id: string;
+  user_id: string;
+  title: string;
+  color: string;
+  archived: boolean;
+  created_at: string;
+}
+
+export interface HabitCompletion {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  completed_on: string;
+}

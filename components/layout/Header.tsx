@@ -5,6 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 
 const pageTitles: Record<string, string> = {
   "/home": "Dashboard",
@@ -14,6 +15,7 @@ const pageTitles: Record<string, string> = {
   "/work": "Work",
   "/todos": "Todos",
   "/activities": "Activities",
+  "/habits": "Habits",
 };
 
 export function Header() {
@@ -28,6 +30,7 @@ export function Header() {
       <div className="flex-1">
         <p className="text-sm font-medium text-foreground">{title}</p>
       </div>
+      <NotificationBell />
       <Button
         variant="ghost"
         size="icon"
